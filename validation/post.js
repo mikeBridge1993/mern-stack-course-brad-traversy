@@ -4,24 +4,14 @@ const isEmpty = require('./is-empty');
 module.exports = (data) => {
   let errors = {};
 
-  //Convert to empty string if user does not send name input field
-  data.email = !isEmpty(data.email) ? data.email : '';
-  data.password = !isEmpty(data.password) ? data.password : '';
+  data.text = !isEmpty(data.text) ? data.text : '';
 
-  if(Validator.isEmpty(data.name)) {
-    errors.name = 'Name field is required';
+  if(!Validator.isLength(data.text, {min: 10, max: 300})) {
+    errors.text = 'Post must be between 10 and 300 characters'
   }
 
-  if(!Validator.isEmail(data.email)) {
-    errors.email = 'Email is invalid';
-  }
-
-  if(Validator.isEmpty(data.email)) {
-    errors.email = 'Email field is required';
-  }
-
-  if(!Validator.isLength(data.password, {min: 6, max: 30})) {
-    errors.password = "Password must be at least 6 characters";
+  if(Validator.isEmpty(data.text)) {
+    errors.text = 'Text field is required';
   }
 
   return {
