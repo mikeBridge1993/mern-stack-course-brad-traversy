@@ -1,18 +1,16 @@
-import { GET_ERRORS, SET_CURRENT_USER } from './types'
+import { GET_ERRORS, SET_CURRENT_USER } from './types';
 import axios from 'axios';
-import setAuthToken from '../utils/setAuthToken'
-import jwt_decode from 'jwt-decode'
+import setAuthToken from '../utils/setAuthToken';
+import jwt_decode from 'jwt-decode';
 
 //Register user
 export const registerUser = (userData, history) => dispatch => {
-
-//Used the proxy in package.json so no need to write http...
-axios.post('api/users/register', userData)
-    .then(res => history.push('/login'))
-    .catch(err =>
+  //Used the proxy in package.json so no need to write http...
+  axios.post('api/users/register', userData)
+    .then(res => history.push('/login')).catch(err =>
       dispatch({
-          type: GET_ERRORS,
-          payload: err.response.data
+        type: GET_ERRORS,
+        payload: err.response.data
       })
     )
 }
@@ -22,46 +20,46 @@ export const loginUser = userData => dispatch => {
 
   //Used the proxy in package.json so no need to write http...
   axios.post('api/users/login', userData)
-      .then(res => {
-        //Save to local storage
-        const { token } = res.data;
+    .then(res => {
+      //Save to local storage
+      const { token } = res.data;
 
-        //Set token to local storage
-        localStorage.setItem('jwtToken', token);
+      //Set token to local storage
+      localStorage.setItem('jwtToken', token);
 
-        //Set token to auth header
-        setAuthToken(token);
+      //Set token to auth header
+      setAuthToken(token);
 
-        //Decode token to get user data
-        const decoded = jwt_decode(token);
+      //Decode token to get user data
+      const decoded = jwt_decode(token);
 
-        //Set current user
-        dispatch(setCurrentUser(decoded));
+      //Set current user
+      dispatch(setCurrentUser(decoded));
+    })
+    .catch(err =>
+      dispatch({
+        type: GET_ERRORS,
+        payload: err.response.data
       })
-      .catch(err =>
-        dispatch({
-            type: GET_ERRORS,
-            payload: err.response.data
-        })
-      )
+    )
+}
+
+//Set logged in user
+export const setCurrentUser = decoded => {
+  return {
+    type: SET_CURRENT_USER,
+    payload: decoded
   }
+}
 
-  //Set logged in user
-  export const setCurrentUser = decoded => {
-    return {
-      type: SET_CURRENT_USER,
-      payload: decoded
-    }
-  }
+//Log user out
+export const logoutUser = () => dispatch => {
+  //Remove token from localStorage
+  localStorage.removeItem('jwtToken');
 
-  //Log user out
-  export const logoutUser = () => dispatch => {
-    //Remove token from localStorage
-    localStorage.removeItem('jwtToken');
+  //Remove auth header for future requests
+  setAuthToken(false);
 
-    //Remove auth header for future requests
-    setAuthToken(false);
-
-    //Set current user to {} which will set isAuthenticated to false
-    dispatch(setCurrentUser({}));
-  }
+  //Set current user to {} which will set isAuthenticated to false
+  dispatch(setCurrentUser({}));
+}
